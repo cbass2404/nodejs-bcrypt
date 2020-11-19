@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const app = express();
 const port = process.env.PORT || 5001;
 
+const userRoutes = require("./routes/userRoutes");
+
 mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
@@ -19,6 +21,7 @@ mongoose
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/api", userRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

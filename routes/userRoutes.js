@@ -1,5 +1,8 @@
 const express = require("express");
 const router = express.Router();
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
+
 const UserModel = require("../models/userModel");
 
 router.route("/").get((req, res) => {
@@ -17,17 +20,23 @@ router.route("/get-users").get((req, res) => {
 });
 
 router.route("/register").post((req, res) => {
-  console.log(req.body);
-  const newUser = new UserModel(req.body);
+  bcrypt.genSalt(saltRounds, function (err, salt) {
+    bcrypt.hash(req.body.password, salt, function (err, hash) {
+      const newUser = new UserModel({
+        username: req.body.username,
+        password: hash,
+      });
 
-  newUser
-    .save()
-    .then((user) => {
-      res.status(200).json(user);
-    })
-    .catch((err) => {
-      res.status(400).send("Unable to add user " + err);
+      newUser
+        .save()
+        .then((user) => {
+          res.status(200).json(user);
+        })
+        .catch((err) => {
+          res.status(200).json({ error: err });
+        });
     });
+  });
 });
 
 module.exports = router;

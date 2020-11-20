@@ -39,4 +39,24 @@ router.route("/register").post((req, res) => {
   });
 });
 
+router.route("/login").post(async (req, res) => {
+  if (req.body.username.trim() === "" || req.body.password.trim() === "") {
+    return res.status(400).json({ message: "This field is required" });
+  }
+  try {
+    const user = await UserModel.findOne({
+      username: req.body.username,
+    }).exec();
+    if (!user) {
+      return res.status(400).json({ message: "Wrong username" });
+    }
+    if (!bcrypt.compareSync(req.body.password, user.password)) {
+      return res.status(400).json({ message: "Wrong password" });
+    }
+    return res.json({ message: "Logged in!" });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 module.exports = router;
